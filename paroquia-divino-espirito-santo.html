@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paróquia Divino Espírito Santo — Holambra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:100vh}
+
+/* ── TOPBAR ── */
+.topbar{background:#1B2B4B;display:flex;align-items:center;justify-content:space-between;padding:8px 28px}
+.topbar-brand{display:flex;align-items:center;gap:8px;color:#a8bcd8;font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+.topbar-brand i{font-size:16px;color:#6b9fd4}
+.topbar-links{display:flex;gap:4px;align-items:center}
+.topbar-links a{color:#a8bcd8;font-size:11px;text-decoration:none;padding:3px 9px;border-radius:4px;transition:background .15s}
+.topbar-links a:hover{background:rgba(255,255,255,.1);color:#fff}
+.admin-trigger{background:none;border:none;cursor:pointer;color:#3a4f6a;font-size:15px;padding:3px 6px;border-radius:4px;transition:color .2s;margin-left:6px}
+.admin-trigger:hover{color:#a8bcd8}
+
+/* ── HEADER ── */
+.header{background:#1B2B4B;padding:22px 28px 0;display:flex;align-items:flex-end;gap:16px;border-top:1px solid rgba(255,255,255,.07)}
+.header-cross{width:54px;height:54px;background:#243a60;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(107,159,212,.25)}
+.header-cross i{font-size:27px;color:#6b9fd4}
+.header-text{padding-bottom:2px}
+.header-text h1{font-family:'Merriweather',serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:-.01em;line-height:1.2}
+.header-text p{font-size:11px;color:#7a99c2;margin-top:4px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ── NAV ── */
+.nav{background:#1B2B4B;display:flex;padding:0 20px;border-top:1px solid rgba(255,255,255,.09)}
+.nav button{background:none;border:none;color:#7a99c2;padding:13px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s;white-space:nowrap}
+.nav button:hover{color:#c8daf0}
+.nav button.active{color:#fff;border-bottom:2px solid #6b9fd4}
+
+/* ── MAIN ── */
+.main{max-width:860px;margin:0 auto;padding:24px 20px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.sec-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#5a7ba8;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sec-label::after{content:'';flex:1;height:1px;background:#d0daea}
+
+/* ── NEWS CARDS ── */
+.news-list{display:flex;flex-direction:column;gap:10px}
+.news-card{background:#fff;border-radius:10px;border:.5px solid #d0daea;display:flex;overflow:hidden;transition:box-shadow .15s}
+.news-card:hover{box-shadow:0 2px 12px rgba(27,43,75,.08)}
+.news-stripe{width:4px;background:#1B2B4B;flex-shrink:0}
+.news-meta{background:#f0f4f9;width:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;padding:12px 4px;border-right:.5px solid #d0daea}
+.news-meta .day{font-family:'Merriweather',serif;font-size:21px;font-weight:700;color:#1B2B4B;line-height:1}
+.news-meta .mon{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#5a7ba8;margin-top:2px}
+.news-body{padding:12px 16px;flex:1}
+.news-tag-badge{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:#e8f0f9;color:#1B2B4B;border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:5px}
+.news-body h3{font-family:'Merriweather',serif;font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.4;margin-bottom:4px}
+.news-body p{font-size:13px;color:#4a5568;line-height:1.65}
+.news-actions{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:10px 12px;border-left:.5px solid #eef2f7}
+.btn-icon{background:none;border:.5px solid #d0daea;border-radius:6px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#5a7ba8;font-size:14px;transition:all .15s}
+.btn-icon:hover{background:#f0f4f9;color:#1B2B4B}
+.btn-icon.del:hover{background:#fff0f0;border-color:#f0a0a0;color:#c0392b}
+.no-news{text-align:center;padding:40px 20px;color:#8a9bb5;font-size:13px}
+.no-news i{font-size:32px;display:block;margin-bottom:8px;opacity:.5}
+
+/* ── HISTORIA ── */
+.hist-prose{background:#fff;border-radius:10px;border:.5px solid #d0daea;padding:20px;margin-bottom:12px}
+.hist-prose h2{font-family:'Merriweather',serif;font-size:16px;font-weight:700;color:#1B2B4B;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #e8eef5}
+.hist-prose p{font-size:13px;color:#374151;line-height:1.85;margin-bottom:10px}
+.hist-prose p:last-child{margin-bottom:0}
+
+.clero-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.clero-card{background:#fff;border-radius:10px;border:.5px solid #d0daea;padding:14px;display:flex;align-items:center;gap:12px}
+.clero-av{width:40px;height:40px;border-radius:50%;background:#e8f0f9;border:1px solid #b8cce0;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.clero-av i{font-size:18px;color:#1B2B4B}
+.clero-role{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#5a7ba8;margin-bottom:2px}
+.clero-name{font-family:'Merriweather',serif;font-size:13px;font-weight:700;color:#1a1a1a;line-height:1.3}
+
+/* ── CONTATO ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.icard{background:#fff;border-radius:10px;border:.5px solid #d0daea;padding:14px}
+.icard-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:.5px solid #eef2f7}
+.icard-icon{width:32px;height:32px;background:#e8f0f9;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.icard-icon i{font-size:16px;color:#1B2B4B}
+.icard-title{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#5a7ba8}
+.icard p,.icard a{font-size:13px;color:#374151;line-height:1.7;text-decoration:none}
+.icard a:hover{color:#1B2B4B;text-decoration:underline}
+.missa-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:.5px solid #f4f6f9;font-size:12px}
+.missa-row:last-child{border-bottom:none}
+.missa-dia{font-weight:600;color:#1B2B4B}
+.missa-hora{color:#5a7ba8;font-weight:600;font-size:11px;background:#f0f4f9;padding:2px 8px;border-radius:4px}
+.social-row{display:flex;gap:7px;margin-top:8px}
+.sbtn{display:inline-flex;align-items:center;gap:5px;background:#f0f4f9;border:.5px solid #c8d8ea;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:600;color:#1B2B4B;text-decoration:none;transition:background .15s}
+.sbtn:hover{background:#dde8f5}
+.sbtn i{font-size:14px}
+.full{grid-column:1/-1}
+
+/* ── ADMIN OVERLAY ── */
+.admin-overlay{display:none;position:fixed;inset:0;background:rgba(10,18,35,.65);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.admin-overlay.open{display:flex}
+.admin-modal{background:#fff;border-radius:14px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.admin-header{background:#1B2B4B;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.admin-header h2{font-family:'Merriweather',serif;font-size:15px;font-weight:700;color:#fff}
+.admin-header p{font-size:11px;color:#7a99c2;margin-top:2px}
+.admin-close{background:none;border:none;color:#7a99c2;font-size:20px;cursor:pointer;padding:2px;line-height:1;transition:color .15s}
+.admin-close:hover{color:#fff}
+.admin-body{padding:20px}
+
+/* login */
+.login-form{display:flex;flex-direction:column;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#5a7ba8}
+.field input,.field select,.field textarea{font-family:'Inter',sans-serif;font-size:13px;padding:9px 12px;border:.5px solid #c8d8ea;border-radius:8px;outline:none;color:#1a1a1a;transition:border .15s;background:#fff;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6b9fd4;box-shadow:0 0 0 3px rgba(107,159,212,.15)}
+.field textarea{resize:vertical;min-height:80px}
+.btn-primary{background:#1B2B4B;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;width:100%}
+.btn-primary:hover{background:#243a60}
+.btn-secondary{background:#f0f4f9;color:#1B2B4B;border:.5px solid #c8d8ea;border-radius:8px;padding:9px 20px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-secondary:hover{background:#dde8f5}
+.error-msg{font-size:12px;color:#c0392b;background:#fff0f0;border:.5px solid #f0b0b0;border-radius:6px;padding:8px 12px;display:none}
+.error-msg.show{display:block}
+
+/* admin panel */
+.admin-panel{display:none}
+.admin-panel.show{display:block}
+.admin-tabs{display:flex;gap:6px;margin-bottom:16px;border-bottom:.5px solid #e8eef5;padding-bottom:12px}
+.atab{background:none;border:.5px solid #d0daea;border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;color:#5a7ba8;cursor:pointer;transition:all .15s}
+.atab.active,.atab:hover{background:#1B2B4B;color:#fff;border-color:#1B2B4B}
+.atab-content{display:none}
+.atab-content.show{display:block}
+.form-row{display:flex;gap:10px}
+.form-row .field{flex:1}
+.btn-row{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.news-mini-list{margin-top:14px;display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.news-mini{background:#f4f6f9;border-radius:7px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.news-mini-title{font-size:12px;font-weight:600;color:#1B2B4B;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.news-mini-date{font-size:11px;color:#8a9bb5;white-space:nowrap}
+.tag-success{font-size:11px;background:#e8f5e8;color:#2d7a2d;border-radius:5px;padding:3px 8px;display:none}
+.tag-success.show{display:inline-block}
+</style>
+</head>
+<body>
+<script src="config.js"></script>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">
+    <i class="ti ti-building-church" aria-hidden="true"></i>
+    Diocese de Amparo
+  </div>
+  <div class="topbar-links">
+    <a href="https://www.facebook.com/paroquiadivinoespiritosantoholambrasp/" target="_blank">Facebook</a>
+    <a href="https://www.instagram.com/p.divinoespiritosantoholambra/" target="_blank">Instagram</a>
+    <button class="admin-trigger" onclick="openAdmin()" title="Área administrativa" aria-label="Área administrativa">
+      <i class="ti ti-settings" aria-hidden="true"></i>
+    </button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-cross"><i class="ti ti-cross" aria-hidden="true"></i></div>
+  <div class="header-text">
+    <h1>Paróquia Divino Espírito Santo</h1>
+    <p>Holambra · SP &nbsp;·&nbsp; Fundada em 1966</p>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="active" onclick="showTab('noticias',this)">Notícias</button>
+  <button onclick="showTab('historia',this)">História</button>
+  <button onclick="showTab('contato',this)">Contato</button>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- NOTÍCIAS -->
+  <div id="tab-noticias" class="tab-panel active">
+    <div class="sec-label">Últimas notícias</div>
+    <div class="news-list" id="news-list">
+      <!-- preenchido pelo JS -->
+    </div>
+  </div>
+
+  <!-- HISTÓRIA -->
+  <div id="tab-historia" class="tab-panel">
+    <div class="sec-label">Nossa história</div>
+    <div class="hist-prose">
+      <h2>Das origens à paróquia</h2>
+      <p>Desde o início da colonização, conservar uma comunidade católica em Holambra foi uma das principais metas da organização cooperativista. No início não havia uma igreja na emergente comunidade, e as pessoas se deslocavam até Jaguariúna para as missas de domingo.</p>
+      <p>Em 1949 chegou um padre holandês e foi improvisada a primeira capela. A formação da comunidade católica está ligada ao trabalho das irmãs cônegas do Santo Sepulcro (1949–1963), que organizaram a comunidade, cuidaram dos doentes e montaram escola para as crianças.</p>
+      <p>Em 1963 começou a construção da nova igreja, concluída em 1966. Holambra passou a ser paróquia pertencente à Diocese de Campinas, consagrada ao Divino Espírito Santo. Após vários párocos holandeses, tomou posse o primeiro sacerdote brasileiro, Pe. José Armando Coracin, responsável pelo grande crescimento do número de fiéis até 2003.</p>
+    </div>
+
+    <div class="sec-label">Clero paroquial</div>
+    <div class="clero-grid">
+      <div class="clero-card">
+        <div class="clero-av"><i class="ti ti-user" aria-hidden="true"></i></div>
+        <div>
+          <div class="clero-role">Pároco</div>
+          <div class="clero-name">Pe. Charles Franco Peron</div>
+        </div>
+      </div>
+      <div class="clero-card">
+        <div class="clero-av"><i class="ti ti-user" aria-hidden="true"></i></div>
+        <div>
+          <div class="clero-role">Administrador Paroquial</div>
+          <div class="clero-name">Pe. Francisco Ronaldo Silvestre</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTATO -->
+  <div id="tab-contato" class="tab-panel">
+    <div class="sec-label">Informações de contato</div>
+    <div class="info-grid">
+      <div class="icard">
+        <div class="icard-head">
+          <div class="icard-icon"><i class="ti ti-map-pin" aria-hidden="true"></i></div>
+          <span class="icard-title">Endereço</span>
+        </div>
+        <p>Alameda Mauricio de Nassau, 688<br>Centro — Holambra / SP</p>
+      </div>
+      <div class="icard">
+        <div class="icard-head">
+          <div class="icard-icon"><i class="ti ti-phone" aria-hidden="true"></i></div>
+          <span class="icard-title">Telefone &amp; E-mail</span>
+        </div>
+        <p><a href="tel:+551938021213">(19) 3802-1213</a></p>
+        <p style="margin-top:4px"><a href="mailto:paroquia@divinoespiritosanto.org.br">paroquia@divinoespiritosanto.org.br</a></p>
+      </div>
+      <div class="icard">
+        <div class="icard-head">
+          <div class="icard-icon"><i class="ti ti-calendar" aria-hidden="true"></i></div>
+          <span class="icard-title">Secretaria</span>
+        </div>
+        <p>Segunda: 07h30 – 17h<br>Ter a Sex: 07h – 17h<br>Sábado: 08h – 11h</p>
+      </div>
+      <div class="icard">
+        <div class="icard-head">
+          <div class="icard-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+          <span class="icard-title">Horários de missas</span>
+        </div>
+        <div class="missa-row"><span class="missa-dia">Ter e Sex</span><span class="missa-hora">19h — Matriz</span></div>
+        <div class="missa-row"><span class="missa-dia">Sábado</span><span class="missa-hora">19h30 — Matriz</span></div>
+        <div class="missa-row"><span class="missa-dia">Domingo</span><span class="missa-hora">8h — N.S. Rosa Mística</span></div>
+        <div class="missa-row"><span class="missa-dia">Domingo</span><span class="missa-hora">10h e 19h — Matriz</span></div>
+      </div>
+      <div class="icard full">
+        <div class="icard-head">
+          <div class="icard-icon"><i class="ti ti-share" aria-hidden="true"></i></div>
+          <span class="icard-title">Redes sociais</span>
+        </div>
+        <div class="social-row">
+          <a class="sbtn" href="https://www.facebook.com/paroquiadivinoespiritosantoholambrasp/" target="_blank"><i class="ti ti-brand-facebook" aria-hidden="true"></i> Facebook</a>
+          <a class="sbtn" href="https://www.instagram.com/p.divinoespiritosantoholambra/" target="_blank"><i class="ti ti-brand-instagram" aria-hidden="true"></i> Instagram</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ═══ ADMIN OVERLAY ═══ -->
+<div class="admin-overlay" id="admin-overlay" onclick="overlayClick(event)">
+  <div class="admin-modal">
+    <div class="admin-header">
+      <div>
+        <h2>Área Administrativa</h2>
+        <p>Paróquia Divino Espírito Santo</p>
+      </div>
+      <button class="admin-close" onclick="closeAdmin()" aria-label="Fechar"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="admin-body">
+
+      <!-- LOGIN -->
+      <div id="login-section">
+        <div class="login-form">
+          <div class="field">
+            <label>Senha de acesso</label>
+            <input type="password" id="senha-input" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')doLogin()">
+          </div>
+          <div class="error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
+          <button class="btn-primary" onclick="doLogin()">Entrar</button>
+        </div>
+        <p style="font-size:11px;color:#8a9bb5;margin-top:14px;text-align:center"></p><strong></strong> </p>
+      </div>
+
+      <!-- PAINEL -->
+      <div class="admin-panel" id="admin-panel">
+        <div class="admin-tabs">
+          <button class="atab active" onclick="showAtab('add',this)"><i class="ti ti-plus" style="font-size:13px;margin-right:4px"></i>Nova notícia</button>
+          <button class="atab" onclick="showAtab('list',this)"><i class="ti ti-list" style="font-size:13px;margin-right:4px"></i>Gerenciar</button>
+        </div>
+
+        <!-- Adicionar -->
+        <div class="atab-content show" id="atab-add">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div class="form-row">
+              <div class="field">
+                <label>Título *</label>
+                <input type="text" id="f-titulo" placeholder="Ex: Missa de Pentecostes">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label>Categoria</label>
+                <select id="f-categoria">
+                  <option>Evento</option>
+                  <option>Pastoral</option>
+                  <option>Comunidade</option>
+                  <option>Aviso</option>
+                  <option>Liturgia</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Data *</label>
+                <input type="date" id="f-data">
+              </div>
+            </div>
+            <div class="field">
+              <label>Texto</label>
+              <textarea id="f-texto" placeholder="Descreva a notícia ou evento..."></textarea>
+            </div>
+            <div class="btn-row">
+              <span class="tag-success" id="add-success"><i class="ti ti-check" style="font-size:12px;margin-right:3px"></i>Notícia publicada!</span>
+              <button class="btn-secondary" onclick="clearForm()">Limpar</button>
+              <button class="btn-primary" style="width:auto" onclick="addNoticia()"><i class="ti ti-send" style="font-size:13px;margin-right:5px"></i>Publicar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gerenciar -->
+        <div class="atab-content" id="atab-list">
+          <p style="font-size:12px;color:#5a7ba8;margin-bottom:6px">Clique no lixo para remover uma notícia.</p>
+          <div class="news-mini-list" id="admin-news-list"></div>
+          <p style="font-size:11px;color:#a0b0c5;margin-top:10px;text-align:center" id="empty-list-msg"></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SENHA (vem de config.js) ──
+const ADMIN_PASS = CONFIG.ADMIN_PASS;
+
+// ── MESES ──
+const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// ── NOTÍCIAS (dados iniciais de exemplo) ──
+let noticias = JSON.parse(localStorage.getItem('noticias') || 'null') || [
+  {id:1,titulo:'Festa de Pentecostes — Missa Solene',categoria:'Evento',data:'2026-06-01',texto:'Celebração especial com coral e procissão na Matriz. Todos os fiéis estão convidados para esta data especial da nossa comunidade.'},
+  {id:2,titulo:'Retiro de Casais — Inscrições Abertas',categoria:'Pastoral',data:'2026-05-25',texto:'O retiro anual acontece nos dias 14 e 15 de junho. Vagas limitadas — inscreva-se na secretaria paroquial.'},
+  {id:3,titulo:'Bazar Solidário arrecada fundos para a paróquia',categoria:'Comunidade',data:'2026-05-18',texto:'Com grande participação da comunidade, o bazar do último sábado foi um sucesso. Muito obrigado a todos os voluntários!'}
+];
+
+function save(){ localStorage.setItem('noticias', JSON.stringify(noticias)); }
+
+// ── RENDER NOTÍCIAS ──
+function renderNoticias(){
+  const list = document.getElementById('news-list');
+  if(!noticias.length){
+    list.innerHTML = '<div class="no-news"><i class="ti ti-news-off"></i>Nenhuma notícia publicada ainda.</div>';
+    return;
+  }
+  const sorted = [...noticias].sort((a,b)=>b.data.localeCompare(a.data));
+  list.innerHTML = sorted.map(n=>{
+    const d = new Date(n.data+'T12:00:00');
+    return `<div class="news-card" id="nc-${n.id}">
+      <div class="news-stripe"></div>
+      <div class="news-meta"><span class="day">${String(d.getDate()).padStart(2,'0')}</span><span class="mon">${MESES[d.getMonth()]}</span></div>
+      <div class="news-body">
+        <span class="news-tag-badge">${n.categoria}</span>
+        <h3>${n.titulo}</h3>
+        <p>${n.texto}</p>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── TABS ──
+function showTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── ADMIN ──
+function openAdmin(){
+  document.getElementById('admin-overlay').classList.add('open');
+  document.getElementById('senha-input').value='';
+  document.getElementById('login-error').classList.remove('show');
+  setTimeout(()=>document.getElementById('senha-input').focus(),100);
+}
+function closeAdmin(){ document.getElementById('admin-overlay').classList.remove('open'); }
+function overlayClick(e){ if(e.target===document.getElementById('admin-overlay')) closeAdmin(); }
+
+function doLogin(){
+  const v = document.getElementById('senha-input').value;
+  if(v===ADMIN_PASS){
+    document.getElementById('login-section').style.display='none';
+    document.getElementById('admin-panel').classList.add('show');
+    renderAdminList();
+    // default date = today
+    document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+  } else {
+    document.getElementById('login-error').classList.add('show');
+    document.getElementById('senha-input').value='';
+    document.getElementById('senha-input').focus();
+  }
+}
+
+function showAtab(name,btn){
+  document.querySelectorAll('.atab-content').forEach(x=>x.classList.remove('show'));
+  document.querySelectorAll('.atab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('atab-'+name).classList.add('show');
+  btn.classList.add('active');
+  if(name==='list') renderAdminList();
+}
+
+function addNoticia(){
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const data   = document.getElementById('f-data').value;
+  if(!titulo||!data){ alert('Preencha o título e a data.'); return; }
+  const n = {
+    id: Date.now(),
+    titulo,
+    categoria: document.getElementById('f-categoria').value,
+    data,
+    texto: document.getElementById('f-texto').value.trim()
+  };
+  noticias.unshift(n);
+  save();
+  renderNoticias();
+  clearForm();
+  const s = document.getElementById('add-success');
+  s.classList.add('show');
+  setTimeout(()=>s.classList.remove('show'),2500);
+}
+
+function clearForm(){
+  document.getElementById('f-titulo').value='';
+  document.getElementById('f-texto').value='';
+  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+}
+
+function deleteNoticia(id){
+  if(!confirm('Remover esta notícia?')) return;
+  noticias = noticias.filter(n=>n.id!==id);
+  save();
+  renderNoticias();
+  renderAdminList();
+}
+
+function renderAdminList(){
+  const el = document.getElementById('admin-news-list');
+  const msg = document.getElementById('empty-list-msg');
+  if(!noticias.length){
+    el.innerHTML='';
+    msg.textContent='Nenhuma notícia cadastrada.';
+    return;
+  }
+  msg.textContent='';
+  const sorted = [...noticias].sort((a,b)=>b.data.localeCompare(a.data));
+  el.innerHTML = sorted.map(n=>`
+    <div class="news-mini">
+      <span class="news-mini-title">${n.titulo}</span>
+      <span class="news-mini-date">${n.data.split('-').reverse().join('/')}</span>
+      <button class="btn-icon del" onclick="deleteNoticia(${n.id})" title="Remover" aria-label="Remover notícia"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>`).join('');
+}
+
+// ── INIT ──
+renderNoticias();
+</script>
+</body>
+</html>
