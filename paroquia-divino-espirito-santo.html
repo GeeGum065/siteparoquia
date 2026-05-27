@@ -52,6 +52,7 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 .news-meta .day{font-family:'Merriweather',serif;font-size:21px;font-weight:700;color:#1B2B4B;line-height:1}
 .news-meta .mon{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#5a7ba8;margin-top:2px}
 .news-body{padding:12px 16px;flex:1}
+.news-body img{width:100%;border-radius:10px;margin-bottom:10px;display:block;object-fit:contain;max-height:none}
 .news-tag-badge{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;background:#e8f0f9;color:#1B2B4B;border-radius:4px;padding:2px 7px;display:inline-block;margin-bottom:5px}
 .news-body h3{font-family:'Merriweather',serif;font-size:14px;font-weight:700;color:#1a1a1a;line-height:1.4;margin-bottom:4px}
 .news-body p{font-size:13px;color:#4a5568;line-height:1.65}
@@ -169,6 +170,7 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 <nav class="nav">
   <button class="active" onclick="showTab('noticias',this)">Notícias</button>
   <button onclick="showTab('historia',this)">História</button>
+  <button onclick="showTab('sacramentos',this)">Sacramentos</button>
   <button onclick="showTab('contato',this)">Contato</button>
 </nav>
 
@@ -202,6 +204,25 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
           <div class="clero-name">Pe. Charles Franco Peron</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- SACRAMENTOS -->
+  <div id="tab-sacramentos" class="tab-panel">
+    <div class="sec-label">Sacramentos</div>
+    <div class="hist-prose">
+      <h2>Os sacramentos da nossa paróquia</h2>
+      <p>Na Paróquia Divino Espírito Santo celebramos os sete sacramentos da Igreja Católica como sinais da presença de Cristo entre nós:</p>
+      <ul>
+        <li><strong>Batismo</strong> – acolhimento na família da fé.</li>
+        <li><strong>Eucaristia</strong> – encontro vivo com o Corpo e o Sangue de Cristo.</li>
+        <li><strong>Confirmação</strong> – fortalecimento pelo Espírito Santo.</li>
+        <li><strong>Penitência</strong> – experiência do perdão e da reconciliação.</li>
+        <li><strong>Unção dos Enfermos</strong> – apoio e bênção para quem enfrenta doença.</li>
+        <li><strong>Ordem</strong> – dedicação dos ministros ao serviço da comunidade.</li>
+        <li><strong>Matrimônio</strong> – aliança de amor entre os cônjuges.</li>
+      </ul>
+      <p>Para agendar um sacramento ou receber informações, entre em contato com a secretaria paroquial. Nossa equipe orienta o preparo necessário para cada celebração.</p>
     </div>
   </div>
 
@@ -325,6 +346,11 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
               <label>Texto</label>
               <textarea id="f-texto" placeholder="Descreva a notícia ou evento..."></textarea>
             </div>
+            <div class="field">
+              <label>Imagem</label>
+              <input type="file" id="f-imagem" accept="image/*" onchange="handleImageChange(event)">
+              <img id="image-preview" src="" alt="Pré-visualização" style="display:none;width:100%;border-radius:10px;margin-top:10px;object-fit:cover;max-height:180px">
+            </div>
             <div class="btn-row">
               <span class="tag-success" id="add-success"><i class="ti ti-check" style="font-size:12px;margin-right:3px"></i>Notícia publicada!</span>
               <button class="btn-secondary" onclick="clearForm()">Limpar</button>
@@ -362,7 +388,28 @@ let noticias = JSON.parse(localStorage.getItem('noticias') || 'null') || [
   {id:3,titulo:'Bazar Solidário arrecada fundos para a paróquia',categoria:'Comunidade',data:'2026-05-18',texto:'Com grande participação da comunidade, o bazar do último sábado foi um sucesso. Muito obrigado a todos os voluntários!'}
 ];
 
+let selectedImageData = null;
+
 function save(){ localStorage.setItem('noticias', JSON.stringify(noticias)); }
+
+function handleImageChange(event){
+  const file = event.target.files[0];
+  const preview = document.getElementById('image-preview');
+  if(!file){
+    selectedImageData = null;
+    preview.style.display='none';
+    preview.src='';
+    return;
+  }
+  if(!file.type.startsWith('image/')) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    selectedImageData = reader.result;
+    preview.src = selectedImageData;
+    preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
 
 // ── RENDER NOTÍCIAS ──
 function renderNoticias(){
@@ -380,6 +427,7 @@ function renderNoticias(){
       <div class="news-body">
         <span class="news-tag-badge">${n.categoria}</span>
         <h3>${n.titulo}</h3>
+        ${n.image ? `<img src="${n.image}" alt="Imagem da notícia">` : ''}
         <p>${n.texto}</p>
       </div>
     </div>`;
@@ -449,7 +497,8 @@ function addNoticia(){
     titulo,
     categoria: document.getElementById('f-categoria').value,
     data,
-    texto: document.getElementById('f-texto').value.trim()
+    texto: document.getElementById('f-texto').value.trim(),
+    image: selectedImageData
   };
   noticias.unshift(n);
   save();
@@ -464,6 +513,10 @@ function clearForm(){
   document.getElementById('f-titulo').value='';
   document.getElementById('f-texto').value='';
   document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-imagem').value = '';
+  document.getElementById('image-preview').style.display='none';
+  document.getElementById('image-preview').src = '';
+  selectedImageData = null;
 }
 
 function deleteNoticia(id){

@@ -1,5 +1,4 @@
-# Configuração local com senhas e dados sensíveis
-config.js
+# Configuração local 
 .env
 .env.local
 
