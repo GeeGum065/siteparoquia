@@ -140,7 +140,6 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 </style>
 </head>
 <body>
-<script src="config.js"></script>
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -372,25 +371,80 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 </div>
 
 <script>
-// ── SENHA (vem de config.js) ──
-// Quando publicado no GitHub Pages o arquivo `config.js` pode estar ausente
-// (geralmente não é comitado). Detectamos isso e definimos `ADMIN_PASS`
-// como `null` para evitar erros e mostrar uma mensagem ao usuário.
-const ADMIN_PASS = (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.ADMIN_PASS) ? CONFIG.ADMIN_PASS : null;
+// ── CONFIGURAÇÃO DA API ──
+// Use localhost durante o teste local. Depois altere para a URL do backend em produção.
+const API_BASE_URL = 'http://localhost:8000/api';
+let jwtToken = localStorage.getItem('jwtToken') || null;
 
 // ── MESES ──
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 
-// ── NOTÍCIAS (dados iniciais de exemplo) ──
-let noticias = JSON.parse(localStorage.getItem('noticias') || 'null') || [
-  {id:1,titulo:'Festa de Pentecostes — Missa Solene',categoria:'Evento',data:'2026-06-01',texto:'Celebração especial com coral e procissão na Matriz. Todos os fiéis estão convidados para esta data especial da nossa comunidade.'},
-  {id:2,titulo:'Retiro de Casais — Inscrições Abertas',categoria:'Pastoral',data:'2026-05-25',texto:'O retiro anual acontece nos dias 14 e 15 de junho. Vagas limitadas — inscreva-se na secretaria paroquial.'},
-  {id:3,titulo:'Bazar Solidário arrecada fundos para a paróquia',categoria:'Comunidade',data:'2026-05-18',texto:'Com grande participação da comunidade, o bazar do último sábado foi um sucesso. Muito obrigado a todos os voluntários!'}
-];
-
+// ── NOTÍCIAS (carregadas da API) ──
+let noticias = [];
 let selectedImageData = null;
 
-function save(){ localStorage.setItem('noticias', JSON.stringify(noticias)); }
+function save(){ 
+  // Não usar localStorage, salvar via API
+}
+
+// ── API HELPERS ──
+async function apiCall(endpoint, method='GET', data=null) {
+  const url = `${API_BASE_URL}${endpoint}`;
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  
+  if (jwtToken) {
+    options.headers['Authorization'] = `Bearer ${jwtToken}`;
+  }
+  
+  if (data) {
+    options.body = JSON.stringify(data);
+  }
+  
+  try {
+    const response = await fetch(url, options);
+    if (response.status === 401 && method !== 'POST') {
+      // Token expirado
+      jwtToken = null;
+      localStorage.removeItem('jwtToken');
+    }
+    return response;
+  } catch (error) {
+    console.error('Erro na chamada API:', error);
+    throw error;
+  }
+}
+
+// ── UPLOAD DE IMAGEM COMO BASE64 ──
+function getImageBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── CARREGAR NOTÍCIAS ──
+async function loadNoticias() {
+  try {
+    const response = await apiCall('/news/');
+    if (response.ok) {
+      noticias = await response.json();
+      renderNoticias();
+    } else {
+      console.error('Erro ao carregar notícias:', response.status);
+      noticias = [];
+      renderNoticias();
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+  }
+}
 
 function handleImageChange(event){
   const file = event.target.files[0];
@@ -402,13 +456,16 @@ function handleImageChange(event){
     return;
   }
   if(!file.type.startsWith('image/')) return;
-  const reader = new FileReader();
-  reader.onload = ()=>{
-    selectedImageData = reader.result;
-    preview.src = selectedImageData;
+  getImageBase64(file).then(base64 => {
+    selectedImageData = base64;
+    preview.src = base64;
     preview.style.display='block';
-  };
-  reader.readAsDataURL(file);
+  }).catch(error => {
+    console.error('Erro ao ler imagem:', error);
+    selectedImageData = null;
+    preview.style.display='none';
+    preview.src='';
+  });
 }
 
 // ── RENDER NOTÍCIAS ──
@@ -418,16 +475,17 @@ function renderNoticias(){
     list.innerHTML = '<div class="no-news"><i class="ti ti-news-off"></i>Nenhuma notícia publicada ainda.</div>';
     return;
   }
-  const sorted = [...noticias].sort((a,b)=>b.data.localeCompare(a.data));
+  const sorted = [...noticias].sort((a,b)=>new Date(b.data) - new Date(a.data));
   list.innerHTML = sorted.map(n=>{
     const d = new Date(n.data+'T12:00:00');
+    const imageHtml = n.image_url ? `<img src="${n.image_url}" alt="Imagem da notícia">` : '';
     return `<div class="news-card" id="nc-${n.id}">
       <div class="news-stripe"></div>
       <div class="news-meta"><span class="day">${String(d.getDate()).padStart(2,'0')}</span><span class="mon">${MESES[d.getMonth()]}</span></div>
       <div class="news-body">
         <span class="news-tag-badge">${n.categoria}</span>
         <h3>${n.titulo}</h3>
-        ${n.image ? `<img src="${n.image}" alt="Imagem da notícia">` : ''}
+        ${imageHtml}
         <p>${n.texto}</p>
       </div>
     </div>`;
@@ -447,36 +505,45 @@ function openAdmin(){
   document.getElementById('admin-overlay').classList.add('open');
   document.getElementById('senha-input').value='';
   const loginErr = document.getElementById('login-error');
-  // Restaurar texto padrão
   loginErr.textContent = 'Senha incorreta. Tente novamente.';
   loginErr.classList.remove('show');
-  // Se a senha não estiver configurada no servidor (config.js ausente), avisar
-  if(ADMIN_PASS === null){
-    loginErr.textContent = 'Área administrativa não configurada neste servidor público (config.js ausente).';
-    loginErr.classList.add('show');
-  }
   setTimeout(()=>document.getElementById('senha-input').focus(),100);
 }
-function closeAdmin(){ document.getElementById('admin-overlay').classList.remove('open'); }
-function overlayClick(e){ if(e.target===document.getElementById('admin-overlay')) closeAdmin(); }
 
-function doLogin(){
-  // Se ADMIN_PASS não estiver definido (ex: GitHub Pages sem config.js), bloquear login
-  if(ADMIN_PASS === null){
-    alert('Área administrativa não configurada neste servidor público. O arquivo config.js está ausente.');
-    return;
-  }
-  const v = document.getElementById('senha-input').value;
-  if(v===ADMIN_PASS){
-    document.getElementById('login-section').style.display='none';
-    document.getElementById('admin-panel').classList.add('show');
-    renderAdminList();
-    // default date = today
-    document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
-  } else {
+function closeAdmin(){ 
+  document.getElementById('admin-overlay').classList.remove('open'); 
+}
+
+function overlayClick(e){ 
+  if(e.target===document.getElementById('admin-overlay')) closeAdmin(); 
+}
+
+async function doLogin(){
+  const password = document.getElementById('senha-input').value;
+  if (!password) { 
+    document.getElementById('login-error').textContent = 'Digite a senha.';
     document.getElementById('login-error').classList.add('show');
-    document.getElementById('senha-input').value='';
-    document.getElementById('senha-input').focus();
+    return; 
+  }
+  
+  try {
+    const response = await apiCall('/news/login/', 'POST', { password });
+    if (response.ok) {
+      const data = await response.json();
+      jwtToken = data.access;
+      localStorage.setItem('jwtToken', jwtToken);
+      document.getElementById('login-section').style.display='none';
+      document.getElementById('admin-panel').classList.add('show');
+      renderAdminList();
+      document.getElementById('f-data').value = new Date().toISOString().split('T')[0];
+    } else {
+      document.getElementById('login-error').textContent = 'Senha incorreta.';
+      document.getElementById('login-error').classList.add('show');
+      document.getElementById('senha-input').value='';
+    }
+  } catch (error) {
+    document.getElementById('login-error').textContent = 'Erro ao conectar com servidor.';
+    document.getElementById('login-error').classList.add('show');
   }
 }
 
@@ -488,25 +555,34 @@ function showAtab(name,btn){
   if(name==='list') renderAdminList();
 }
 
-function addNoticia(){
+async function addNoticia(){
   const titulo = document.getElementById('f-titulo').value.trim();
   const data   = document.getElementById('f-data').value;
   if(!titulo||!data){ alert('Preencha o título e a data.'); return; }
-  const n = {
-    id: Date.now(),
+  
+  const payload = {
     titulo,
     categoria: document.getElementById('f-categoria').value,
     data,
     texto: document.getElementById('f-texto').value.trim(),
-    image: selectedImageData
+    image: selectedImageData || ''
   };
-  noticias.unshift(n);
-  save();
-  renderNoticias();
-  clearForm();
-  const s = document.getElementById('add-success');
-  s.classList.add('show');
-  setTimeout(()=>s.classList.remove('show'),2500);
+  
+  try {
+    const response = await apiCall('/news/', 'POST', payload);
+    if (response.ok) {
+      await loadNoticias();  // Recarregar notícias
+      clearForm();
+      const s = document.getElementById('add-success');
+      s.classList.add('show');
+      setTimeout(()=>s.classList.remove('show'),2500);
+    } else {
+      const error = await response.json();
+      alert('Erro ao publicar: ' + (error.detail || 'Erro desconhecido'));
+    }
+  } catch (error) {
+    alert('Erro ao publicar notícia: ' + error.message);
+  }
 }
 
 function clearForm(){
@@ -519,12 +595,19 @@ function clearForm(){
   selectedImageData = null;
 }
 
-function deleteNoticia(id){
+async function deleteNoticia(id){
   if(!confirm('Remover esta notícia?')) return;
-  noticias = noticias.filter(n=>n.id!==id);
-  save();
-  renderNoticias();
-  renderAdminList();
+  try {
+    const response = await apiCall(`/news/${id}/`, 'DELETE');
+    if (response.ok || response.status === 204) {
+      loadNoticias();
+      renderAdminList();
+    } else {
+      alert('Erro ao deletar notícia');
+    }
+  } catch (error) {
+    alert('Erro: ' + error.message);
+  }
 }
 
 function renderAdminList(){
@@ -536,7 +619,7 @@ function renderAdminList(){
     return;
   }
   msg.textContent='';
-  const sorted = [...noticias].sort((a,b)=>b.data.localeCompare(a.data));
+  const sorted = [...noticias].sort((a,b)=>new Date(b.data) - new Date(a.data));
   el.innerHTML = sorted.map(n=>`
     <div class="news-mini">
       <span class="news-mini-title">${n.titulo}</span>
@@ -546,7 +629,10 @@ function renderAdminList(){
 }
 
 // ── INIT ──
-renderNoticias();
+loadNoticias();
+// Carregar notícias a cada 30 segundos (opcional)
+setInterval(loadNoticias, 30000);
 </script>
+
 </body>
 </html>

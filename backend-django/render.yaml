@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: paroquia-api
+    runtime: python
+    pythonVersion: 3.11
+    buildCommand: pip install -r requirements.txt && python manage.py migrate
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: paroquia2024
+      - key: ALLOWED_HOSTS
+        value: "*.onrender.com,localhost,127.0.0.1"
+      - key: FRONTEND_URL
+        value: "https://seu-dominio-github-pages.github.io"
+      - key: DJANGO_SUPERUSER_USERNAME
+        value: admin
+      - key: DJANGO_SUPERUSER_PASSWORD
+        value: paroquia2024
+      - key: DJANGO_SUPERUSER_EMAIL
+        value: admin@paroquia.local
