@@ -1,0 +1,8 @@
+# Configuração local com senhas e dados sensíveis
+config.js
+.env
+.env.local
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
