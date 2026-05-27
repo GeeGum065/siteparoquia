@@ -38,6 +38,10 @@ class NewsViewSet(viewsets.ModelViewSet):
         if not password:
             return Response({'error': 'Senha é obrigatória.'}, status=status.HTTP_400_BAD_REQUEST)
         
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Senha recebida: '{password}' | Senha esperada: '{settings.ADMIN_PASSWORD}'")
+        
         if AdminAuthentication.authenticate(password):
             # Gerar um usuário fake ou usar o admin padrão para gerar token
             from django.contrib.auth.models import User
