@@ -347,7 +347,10 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 
 <script>
 // ── SENHA (vem de config.js) ──
-const ADMIN_PASS = CONFIG.ADMIN_PASS;
+// Quando publicado no GitHub Pages o arquivo `config.js` pode estar ausente
+// (geralmente não é comitado). Detectamos isso e definimos `ADMIN_PASS`
+// como `null` para evitar erros e mostrar uma mensagem ao usuário.
+const ADMIN_PASS = (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.ADMIN_PASS) ? CONFIG.ADMIN_PASS : null;
 
 // ── MESES ──
 const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
@@ -395,13 +398,26 @@ function showTab(name,btn){
 function openAdmin(){
   document.getElementById('admin-overlay').classList.add('open');
   document.getElementById('senha-input').value='';
-  document.getElementById('login-error').classList.remove('show');
+  const loginErr = document.getElementById('login-error');
+  // Restaurar texto padrão
+  loginErr.textContent = 'Senha incorreta. Tente novamente.';
+  loginErr.classList.remove('show');
+  // Se a senha não estiver configurada no servidor (config.js ausente), avisar
+  if(ADMIN_PASS === null){
+    loginErr.textContent = 'Área administrativa não configurada neste servidor público (config.js ausente).';
+    loginErr.classList.add('show');
+  }
   setTimeout(()=>document.getElementById('senha-input').focus(),100);
 }
 function closeAdmin(){ document.getElementById('admin-overlay').classList.remove('open'); }
 function overlayClick(e){ if(e.target===document.getElementById('admin-overlay')) closeAdmin(); }
 
 function doLogin(){
+  // Se ADMIN_PASS não estiver definido (ex: GitHub Pages sem config.js), bloquear login
+  if(ADMIN_PASS === null){
+    alert('Área administrativa não configurada neste servidor público. O arquivo config.js está ausente.');
+    return;
+  }
   const v = document.getElementById('senha-input').value;
   if(v===ADMIN_PASS){
     document.getElementById('login-section').style.display='none';
