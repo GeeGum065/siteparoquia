@@ -1,180 +1,92 @@
-# Backend API — Paróquia Divino Espírito Santo
+# Site Paróquia Divino Espírito Santo
 
-API REST em Django para gerenciar notícias da paróquia com autenticação por senha e armazenamento compartilhado.
-
-## Setup Local
-
-### 1. Criar ambiente virtual
-```bash
-python -m venv .venv
-.venv\Scripts\activate  # Windows
-source .venv/bin/activate  # Mac/Linux
-```
-
-### 2. Instalar dependências
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Criar arquivo `.env`
-Copie `.env.example` para `.env` e configure:
-```bash
-cp .env.example .env
-```
-
-Edite os valores (principalmente `SECRET_KEY` deve ser único para produção).
-
-### 4. Executar migrações
-```bash
-python manage.py migrate
-```
-
-### 5. Criar superuser (admin)
-```bash
-python manage.py createsuperuser
-```
-
-### 6. Rodar servidor local
-```bash
-python manage.py runserver
-```
-
-Acesse `http://localhost:8000/api/` para ver a API.
-
-## Endpoints
-
-### Login
-**POST** `/api/news/login/`
-```json
-{
-  "password": "paroquia2024"
-}
-```
-Resposta:
-```json
-{
-  "access": "token_jwt_aqui",
-  "refresh": "refresh_token_aqui"
-}
-```
-
-### Listar notícias (público)
-**GET** `/api/news/`
-
-### Criar notícia (autenticado)
-**POST** `/api/news/`
-```json
-{
-  "titulo": "Missa Especial",
-  "categoria": "Evento",
-  "data": "2026-06-01",
-  "texto": "Descrição da notícia",
-  "image": null  // ou arquivo multipart
-}
-```
-Header necessário:
-```
-Authorization: Bearer <access_token>
-```
-
-### Deletar notícia (autenticado)
-**DELETE** `/api/news/{id}/`
-Header:
-```
-Authorization: Bearer <access_token>
-```
-
-## Deploy em Render
-
-### Opção 1: Usar `render.yaml` (automático)
-1. Fazer push do repositório para GitHub
-2. Conectar repositório no Render
-3. Render lerá `render.yaml` e fará deploy automático
-
-### Opção 2: Deploy manual
-1. Criar novo Web Service no Render
-2. Conectar repositório
-3. Configurar:
-   - **Runtime**: Python 3.11
-   - **Build Command**: `pip install -r requirements.txt && python manage.py migrate`
-   - **Start Command**: `gunicorn config.wsgi:application --bind 0.0.0.0:8000`
-4. Adicionar variáveis de ambiente (Settings → Environment):
-   - `SECRET_KEY`: gerar chave aleatória (comando abaixo)
-   - `DEBUG`: `false`
-   - `ADMIN_PASSWORD`: sua senha de admin
-   - `ALLOWED_HOSTS`: `seu-servidor.onrender.com,localhost`
-   - `FRONTEND_URL`: URL do seu GitHub Pages
-
-Gerar SECRET_KEY:
-```python
-from django.core.management.utils import get_random_secret_key
-print(get_random_secret_key())
-```
-
-### Variáveis de Ambiente no Render
-Adicione na seção "Environment Variables":
-- `DEBUG=false`
-- `SECRET_KEY=<chave_aleatória>`
-- `ADMIN_PASSWORD=paroquia2024`
-- `ALLOWED_HOSTS=seu-app.onrender.com`
-- `FRONTEND_URL=https://seu-usuario.github.io/seu-repo`
+Site oficial da Paróquia Divino Espírito Santo de Holambra, com sistema de notícias gerenciado por painel admin.
 
 ## Arquitetura
 
-- **Frontend**: HTML + JavaScript (GitHub Pages)
-- **Backend**: Django + DRF (Render)
-- **DB**: SQLite (local) / Postgres (Render)
-- **Auth**: JWT + senha customizada
+```
+Frontend (GitHub Pages) → API REST (Render) → Banco de dados (SQLite)
+```
 
-## Estrutura de Pastas
+- **Frontend:** HTML + JavaScript estático hospedado no GitHub Pages
+- **Backend:** Django + Django REST Framework hospedado no Render
+- **Autenticação:** JWT com senha customizada de admin
+
+## Estrutura do Repositório
 
 ```
-backend-django/
+siteparoquia/
+├── paroquia-divino-espirito-santo.html   # Frontend completo (uma página)
+├── config.js                             # Configurações do frontend (não usado ativamente)
+├── manage.py                             # CLI do Django
+├── requirements.txt                      # Dependências Python
+├── Dockerfile                            # Configuração Docker para o Render
+├── render.yaml                           # Configuração de deploy no Render
 ├── config/
-│   ├── settings.py      # Configurações Django
-│   ├── urls.py          # Rotas principais
-│   └── wsgi.py          # WSGI para produção
-├── api/
-│   ├── models.py        # Modelo de Notícia
-│   ├── serializers.py   # Serializers DRF
-│   ├── views.py         # ViewSets e lógica
-│   ├── urls.py          # Rotas da API
-│   └── admin.py         # Admin Django
-├── manage.py
-├── requirements.txt
-├── .env.example
-├── Dockerfile
-└── render.yaml          # Config Render
+│   ├── settings.py                       # Configurações do Django
+│   ├── urls.py                           # Rotas principais
+│   └── wsgi.py                           # WSGI para produção
+└── api/
+    ├── models.py                         # Modelo de Notícia
+    ├── serializers.py                    # Serializers DRF
+    ├── views.py                          # ViewSets e lógica de autenticação
+    ├── urls.py                           # Rotas da API
+    └── admin.py                          # Painel admin Django
 ```
+
+## Endpoints da API
+
+| Método | Endpoint | Acesso | Descrição |
+|--------|----------|--------|-----------|
+| POST | `/api/news/login/` | Público | Login com senha, retorna token JWT |
+| GET | `/api/news/` | Público | Lista todas as notícias |
+| POST | `/api/news/` | Autenticado | Cria uma nova notícia |
+| DELETE | `/api/news/{id}/` | Autenticado | Remove uma notícia |
+
+## Variáveis de Ambiente
+
+| Variável | Descrição | Exemplo |
+|----------|-----------|---------|
+| `SECRET_KEY` | Chave secreta do Django | `django-insecure-...` |
+| `DEBUG` | Modo de depuração | `false` |
+| `ADMIN_PASSWORD` | Senha do painel admin | `minhasenha123` |
+| `ALLOWED_HOSTS` | Domínios permitidos | `siteparoquia1.onrender.com,localhost` |
+| `FRONTEND_URL` | URL do GitHub Pages | `https://usuario.github.io/repo` |
+| `DATABASE_URL` | URL do banco (opcional) | `sqlite:///db.sqlite3` |
+
+## Deploy
+
+### Backend — Render
+
+1. Suba o repositório no GitHub
+2. Crie uma conta em [render.com](https://render.com)
+3. Crie um novo **Web Service** e conecte o repositório
+4. O `render.yaml` configura tudo automaticamente
+5. Adicione as variáveis de ambiente em **Settings → Environment**
+
+> ⚠️ O plano gratuito do Render "dorme" após 15 minutos sem uso. A primeira requisição pode demorar ~30 segundos.
+
+### Frontend — GitHub Pages
+
+1. Vá em **Settings → Pages** no repositório
+2. Selecione a branch `main` e a pasta raiz `/`
+3. O site ficará disponível em `https://usuario.github.io/nome-do-repositorio`
+4. Certifique-se que a variável `API_BASE_URL` no HTML aponta para a URL do Render:
+
+```js
+const API_BASE_URL = 'https://siteparoquia1.onrender.com/api';
+```
+
+## Como Usar o Painel Admin
+
+1. Acesse o site pelo GitHub Pages
+2. Clique no ícone de admin (discreto no rodapé)
+3. Digite a senha configurada em `ADMIN_PASSWORD` no Render
+4. Crie, visualize ou delete notícias
 
 ## Segurança
 
-⚠️ **Nunca** commit `.env` com valores reais!
-
-Boas práticas:
-- Usar variáveis de ambiente para senhas e chaves
-- Mudar `SECRET_KEY` em produção
-- Usar `DEBUG=false` em produção
-- Usar HTTPS (Render oferece automaticamente)
-- Limitar CORS apenas aos domínios necessários
-
-## Troubleshooting
-
-### Erro: `ModuleNotFoundError: No module named 'rest_framework'`
-Rode: `pip install -r requirements.txt`
-
-### Erro: `CORS error` no frontend
-Verifique se `CORS_ALLOWED_ORIGINS` inclui o URL do seu frontend em `settings.py`.
-
-### Erro: `No such table: api_news`
-Execute: `python manage.py migrate`
-
-### Erro ao fazer upload de imagem
-Certifique-se que `Pillow` está instalado: `pip install Pillow`
-
-## Contato
-
-Para dúvidas, consulte a documentação de:
-- [Django](https://docs.djangoproject.com/)
-- [Django REST Framework](https://www.django-rest-framework.org/)
-- [Render Docs](https://render.com/docs)
+- Nunca suba o arquivo `.env` com senhas reais para o repositório
+- Use sempre `DEBUG=false` em produção
+- Troque a `ADMIN_PASSWORD` por uma senha forte
+- O Render oferece HTTPS automaticamente no plano gratuito
