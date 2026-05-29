@@ -478,7 +478,7 @@ function renderNoticias(){
   const sorted = [...noticias].sort((a,b)=>new Date(b.data) - new Date(a.data));
   list.innerHTML = sorted.map(n=>{
     const d = new Date(n.data+'T12:00:00');
-    const imageHtml = n.image_url ? `<img src="${n.image_url}" alt="Imagem da notícia">` : '';
+    const imageHtml = n.image ? `<img src="${n.image}" alt="Imagem da notícia">` : '';
     return `<div class="news-card" id="nc-${n.id}">
       <div class="news-stripe"></div>
       <div class="news-meta"><span class="day">${String(d.getDate()).padStart(2,'0')}</span><span class="mon">${MESES[d.getMonth()]}</span></div>
@@ -555,81 +555,6 @@ function showAtab(name,btn){
   if(name==='list') renderAdminList();
 }
 
-async function addNoticia(){
-  const titulo = document.getElementById('f-titulo').value.trim();
-  const data   = document.getElementById('f-data').value;
-  if(!titulo||!data){ alert('Preencha o título e a data.'); return; }
-  
-  const payload = {
-    titulo,
-    categoria: document.getElementById('f-categoria').value,
-    data,
-    texto: document.getElementById('f-texto').value.trim(),
-    image: selectedImageData || ''
-  };
-  
-  try {
-    const response = await apiCall('/news/', 'POST', payload);
-    if (response.ok) {
-      await loadNoticias();  // Recarregar notícias
-      clearForm();
-      const s = document.getElementById('add-success');
-      s.classList.add('show');
-      setTimeout(()=>s.classList.remove('show'),2500);
-    } else {
-      const error = await response.json();
-      alert('Erro ao publicar: ' + (error.detail || 'Erro desconhecido'));
-    }
-  } catch (error) {
-    alert('Erro ao publicar notícia: ' + error.message);
-  }
-}
-
-function clearForm(){
-  document.getElementById('f-titulo').value='';
-  document.getElementById('f-texto').value='';
-  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
-  document.getElementById('f-imagem').value = '';
-  document.getElementById('image-preview').style.display='none';
-  document.getElementById('image-preview').src = '';
-  selectedImageData = null;
-}
-
-async function deleteNoticia(id){
-  if(!confirm('Remover esta notícia?')) return;
-  try {
-    const response = await apiCall(`/news/${id}/`, 'DELETE');
-    if (response.ok || response.status === 204) {
-      loadNoticias();
-      renderAdminList();
-    } else {
-      alert('Erro ao deletar notícia');
-    }
-  } catch (error) {
-    alert('Erro: ' + error.message);
-  }
-}
-
-function renderAdminList(){
-  const el = document.getElementById('admin-news-list');
-  const msg = document.getElementById('empty-list-msg');
-  if(!noticias.length){
-    el.innerHTML='';
-    msg.textContent='Nenhuma notícia cadastrada.';
-    return;
-  }
-  msg.textContent='';
-  const sorted = [...noticias].sort((a,b)=>new Date(b.data) - new Date(a.data));
-  el.innerHTML = sorted.map(n=>`
-    <div class="news-mini">
-      <span class="news-mini-title">${n.titulo}</span>
-      <span class="news-mini-date">${n.data.split('-').reverse().join('/')}</span>
-      <button class="btn-icon del" onclick="deleteNoticia(${n.id})" title="Remover" aria-label="Remover notícia"><i class="ti ti-trash" aria-hidden="true"></i></button>
-    </div>`).join('');
-}
-
-// ── INIT ──
-loadNoticias();
 // Carregar notícias a cada 30 segundos (opcional)
 setInterval(loadNoticias, 30000);
 </script>
