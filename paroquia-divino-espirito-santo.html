@@ -600,6 +600,20 @@ async function addNoticia(){
     alert('Erro ao publicar notícia: ' + error.message);
   }
 }
+async function deleteNoticia(id){
+  if(!confirm('Remover esta notícia?')) return;
+  try {
+    const response = await apiCall(`/news/${id}/`, 'DELETE');
+    if (response.ok || response.status === 204) {
+      loadNoticias();
+      renderAdminList();
+    } else {
+      alert('Erro ao deletar notícia');
+    }
+  } catch (error) {
+    alert('Erro: ' + error.message);
+  }
+}
 // Carregar notícias a cada 30 segundos (opcional)
 setInterval(loadNoticias, 10000);
 </script>
