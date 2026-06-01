@@ -614,6 +614,15 @@ async function deleteNoticia(id){
     alert('Erro: ' + error.message);
   }
 }
+function clearForm(){
+  document.getElementById('f-titulo').value='';
+  document.getElementById('f-texto').value='';
+  document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+  document.getElementById('f-imagem').value = '';
+  document.getElementById('image-preview').style.display='none';
+  document.getElementById('image-preview').src = '';
+  selectedImageData = null;
+}
 // Carregar notícias a cada 30 segundos (opcional)
 setInterval(loadNoticias, 10000);
 </script>
