@@ -554,7 +554,23 @@ function showAtab(name,btn){
   btn.classList.add('active');
   if(name==='list') renderAdminList();
 }
-
+function renderAdminList(){
+  const el = document.getElementById('admin-news-list');
+  const msg = document.getElementById('empty-list-msg');
+  if(!noticias.length){
+    el.innerHTML='';
+    msg.textContent='Nenhuma notícia cadastrada.';
+    return;
+  }
+  msg.textContent='';
+  const sorted = [...noticias].sort((a,b)=>new Date(b.data) - new Date(a.data));
+  el.innerHTML = sorted.map(n=>`
+    <div class="news-mini">
+      <span class="news-mini-title">${n.titulo}</span>
+      <span class="news-mini-date">${n.data.split('-').reverse().join('/')}</span>
+      <button class="btn-icon del" onclick="deleteNoticia(${n.id})" title="Remover" aria-label="Remover notícia"><i class="ti ti-trash" aria-hidden="true"></i></button>
+    </div>`).join('');
+}
 // Carregar notícias a cada 30 segundos (opcional)
 setInterval(loadNoticias, 10000);
 </script>
