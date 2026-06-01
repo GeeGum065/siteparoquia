@@ -7,6 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <!-- Favicon / Site icon -->
+  <link rel="icon" href="images/logo.png" type="image/png">
+  <link rel="apple-touch-icon" href="images/logo.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:100vh}
@@ -95,6 +98,16 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 .sbtn i{font-size:14px}
 .full{grid-column:1/-1}
 
+/* ── SACRAMENTOS ── */
+.sac-menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.sac-btn{background:#fff;border:.5px solid #d0daea;border-radius:10px;padding:16px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#5a7ba8;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .15s;text-transform:uppercase;letter-spacing:.06em}
+.sac-btn i{font-size:24px;color:#6b9fd4}
+.sac-btn:hover{background:#f0f4f9;border-color:#6b9fd4;color:#1B2B4B}
+.sac-btn.active{background:#1B2B4B;color:#fff;border-color:#1B2B4B}
+.sac-btn.active i{color:#fff}
+.sac-content{display:none}
+.sac-content.active{display:block}
+
 /* ── ADMIN OVERLAY ── */
 .admin-overlay{display:none;position:fixed;inset:0;background:rgba(10,18,35,.65);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .admin-overlay.open{display:flex}
@@ -137,6 +150,28 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
 .news-mini-date{font-size:11px;color:#8a9bb5;white-space:nowrap}
 .tag-success{font-size:11px;background:#e8f5e8;color:#2d7a2d;border-radius:5px;padding:3px 8px;display:none}
 .tag-success.show{display:inline-block}
+
+/* ── DROPDOWN PASTORAIS ── */
+.nav-dropdown{position:relative;display:inline-block}
+.nav-dropdown>button{background:none;border:none;color:#7a99c2;padding:13px 14px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;transition:color .15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.nav-dropdown>button:hover{color:#c8daf0}
+.nav-dropdown>button.active{color:#fff;border-bottom:2px solid #6b9fd4}
+.nav-dropdown>button i{font-size:11px;transition:transform .2s}
+.nav-dropdown.open>button i{transform:rotate(180deg)}
+.dropdown-menu{display:none;position:absolute;top:100%;left:0;background:#1B2B4B;border:1px solid rgba(255,255,255,.1);border-radius:0 0 8px 8px;min-width:160px;z-index:100;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.nav-dropdown.open .dropdown-menu{display:block}
+.dropdown-menu button{display:block;width:100%;background:none;border:none;color:#a8bcd8;padding:10px 16px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;text-align:left;transition:background .15s}
+.dropdown-menu button:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* ── PASTORAIS TABS ── */
+.past-menu{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.past-btn{background:#fff;border:.5px solid #d0daea;border-radius:10px;padding:16px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:#5a7ba8;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;transition:all .15s;text-transform:uppercase;letter-spacing:.06em}
+.past-btn i{font-size:24px;color:#6b9fd4}
+.past-btn:hover{background:#f0f4f9;border-color:#6b9fd4;color:#1B2B4B}
+.past-btn.active{background:#1B2B4B;color:#fff;border-color:#1B2B4B}
+.past-btn.active i{color:#fff}
+.past-content{display:none}
+.past-content.active{display:block}
 </style>
 </head>
 <body>
@@ -170,6 +205,14 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
   <button class="active" onclick="showTab('noticias',this)">Notícias</button>
   <button onclick="showTab('historia',this)">História</button>
   <button onclick="showTab('sacramentos',this)">Sacramentos</button>
+  <div class="nav-dropdown" id="dropdown-pastorais">
+    <button onclick="toggleDropdown()" id="btn-pastorais">Pastorais <i class="ti ti-chevron-down"></i></button>
+    <div class="dropdown-menu">
+      <button onclick="showPastoral('liturgia')">Liturgia</button>
+      <button onclick="showPastoral('ministros')">Ministros</button>
+      <button onclick="showPastoral('familia')">Família</button>
+    </div>
+  </div>
   <button onclick="showTab('contato',this)">Contato</button>
 </nav>
 
@@ -209,22 +252,113 @@ body{font-family:'Inter',sans-serif;background:#f4f6f9;color:#1a1a1a;min-height:
   <!-- SACRAMENTOS -->
   <div id="tab-sacramentos" class="tab-panel">
     <div class="sec-label">Sacramentos</div>
-    <div class="hist-prose">
-      <h2>Os sacramentos da nossa paróquia</h2>
-      <p>Na Paróquia Divino Espírito Santo celebramos os sete sacramentos da Igreja Católica como sinais da presença de Cristo entre nós:</p>
-      <ul>
-        <li><strong>Batismo</strong> – acolhimento na família da fé.</li>
-        <li><strong>Eucaristia</strong> – encontro vivo com o Corpo e o Sangue de Cristo.</li>
-        <li><strong>Confirmação</strong> – fortalecimento pelo Espírito Santo.</li>
-        <li><strong>Penitência</strong> – experiência do perdão e da reconciliação.</li>
-        <li><strong>Unção dos Enfermos</strong> – apoio e bênção para quem enfrenta doença.</li>
-        <li><strong>Ordem</strong> – dedicação dos ministros ao serviço da comunidade.</li>
-        <li><strong>Matrimônio</strong> – aliança de amor entre os cônjuges.</li>
-      </ul>
-      <p>Para agendar um sacramento ou receber informações, entre em contato com a secretaria paroquial. Nossa equipe orienta o preparo necessário para cada celebração.</p>
+    
+    <!-- Menu de seleção de sacramentos -->
+    <div class="sac-menu">
+      <button class="sac-btn" onclick="showSacramento('batismo',this)">
+        <i class="ti ti-droplet" aria-hidden="true"></i>
+        <span>Batismo</span>
+      </button>
+      <button class="sac-btn" onclick="showSacramento('crisma',this)">
+        <i class="ti ti-flame" aria-hidden="true"></i>
+        <span>Crisma</span>
+      </button>
+      <button class="sac-btn" onclick="showSacramento('comunhao',this)">
+        <i class="ti ti-bread" aria-hidden="true"></i>
+        <span>Primeira Comunhão</span>
+      </button>
+      <button class="sac-btn" onclick="showSacramento('casamento',this)">
+        <i class="ti ti-heart-handshake" aria-hidden="true"></i>
+        <span>Casamento</span>
+      </button>
+    </div>
+
+    <!-- Conteúdo dos sacramentos -->
+    <div id="sac-batismo" class="sac-content active">
+      <div class="hist-prose">
+        <h2>Batismo</h2>
+        <p>O Batismo é o primeiro sacramento e a porta de entrada para a vida sacramental. Nele, a pessoa é incorporada à Igreja e recebe o perdão do pecado original.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Preparação</h3>
+        <p>Os pais ou responsáveis devem procurar a secretaria para inscrever a criança e participar da catequese preparatória.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Documentos Necessários</h3>
+        <p>Certidão de Nascimento da Criança <br> Certidão de Casamento Religioso dos Pais e Padrinhos <br> Comprovante de Crisma para Padrinhos <br> Comprovante de residência dos pais <br> Comprovante de curso de preparação (dentro do prazo de validade) <br> Para Pais de fora da Diocese de Amparo pedir carta de apresentação (PARA SEU PÁROCO) <br> Taxa de R$90,00</p>
+      </div>
+    </div>
+
+    <div id="sac-crisma" class="sac-content">
+      <div class="hist-prose">
+        <h2>Crisma (Confirmação)</h2>
+        <p>A Crisma é o sacramento do fortalecimento. Por meio dele, o Espírito Santo concede graças e dons especiais para fortalecer a fé e testemunhá-la corajosamente.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Requisitos</h3>
+        <p>O crismando deve estar batizado, ter consciência da fé e ter participado da catequese de preparação. </p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Informações</h3>
+        <p>Procure a secretaria paroquial para inscrições e datas das próximas celebrações de Crisma.</p>
+      </div>
+    </div>
+
+    <div id="sac-comunhao" class="sac-content">
+      <div class="hist-prose">
+        <h2>Primeira Comunhão</h2>
+        <p>A Primeira Comunhão marca o momento em que a criança recebe o Corpo e o Sangue de Cristo pela primeira vez, aprofundando sua união com Jesus.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Preparação</h3>
+        <p>A criança deve ter recebido o batismo e participado de catequese apropriada.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Informações</h3>
+        <p>Consulte a secretaria para conhecer as datas das próximas Primeiras Comunhões e os requisitos específicos de preparação.</p>
+      </div>
+    </div>
+
+    <div id="sac-casamento" class="sac-content">
+      <div class="hist-prose">
+        <h2>Casamento</h2>
+        <p>O Matrimônio é a aliança de amor entre um homem e uma mulher, celebrada como sacramento que une os cônjuges em comunhão de vida e de amor.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Preparação</h3>
+        <p>Os noivos devem procurar a secretaria com antecedência (recomenda-se 6 meses antes) para agendar a celebração e participar do curso de preparação ao matrimônio.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Documentação Necessária</h3>
+        <p>Certidão de batismo, RG, CPF e demais documentos conforme orientação da secretaria.</p>
+        <h3 style="margin-top:16px;font-size:14px;font-weight:600;color:#1B2B4B">Informações</h3>
+        <p>Telefone: <strong>(19) 3802-1213</strong> | E-mail: <strong>paroquia@divinoespiritosanto.org.br</strong></p>
+      </div>
     </div>
   </div>
+  <!--PASTORAIS-->
+  <div id="tab-pastorais" class="tab-panel">
+    <div class="sec-label" id="past-label">Pastorais</div>
+    <div class="past-menu">
+      <button class="past-btn active" id="pbtn-liturgia" onclick="showPastoralTab('liturgia',this)">
+        <i class="ti ti-candle"></i>Liturgia
+      </button>
+      <button class="past-btn" id="pbtn-ministros" onclick="showPastoralTab('ministros',this)">
+        <i class="ti ti-users"></i>Ministros
+      </button>
+      <button class="past-btn" id="pbtn-familia" onclick="showPastoralTab('familia',this)">
+        <i class="ti ti-home-heart"></i>Família
+      </button>
+    </div>
 
+    <div id="past-liturgia" class="past-content active">
+      <div class="hist-prose">
+        <h2>Pastoral da Liturgia</h2>
+        <p>A Pastoral da Liturgia é responsável por organizar e animar as celebrações litúrgicas da paróquia, garantindo que as missas e demais sacramentos sejam celebrados com dignidade e participação ativa dos fiéis.</p>
+        <p>Coordena os ministros do altar, leitores, salmistas e demais servidores da liturgia, promovendo formação contínua para todos os envolvidos nas celebrações.</p>
+      </div>
+    </div>
+
+    <div id="past-ministros" class="past-content">
+      <div class="hist-prose">
+        <h2>Ministros da Eucaristia</h2>
+        <p>Os Ministros Extraordinários da Sagrada Comunhão auxiliam na distribuição da Eucaristia durante as celebrações e também levam a Comunhão aos doentes e impossibilitados de comparecer à igreja.</p>
+        <p>Para se tornar ministro, é necessário participar de formação específica e ser indicado pela comunidade paroquial. Entre em contato com a secretaria para mais informações.</p>
+      </div>
+    </div>
+
+    <div id="past-familia" class="past-content">
+      <div class="hist-prose">
+        <h2>Pastoral da Família</h2>
+        <p>A Pastoral da Família acompanha os casais e famílias da paróquia, oferecendo suporte espiritual, encontros de formação e momentos de partilha para fortalecer os laços familiares à luz do Evangelho.</p>
+        <p>Realiza encontros periódicos para casais e promove eventos voltados à vida familiar cristã. Todos os casais da paróquia são bem-vindos a participar.</p>
+      </div>
+    </div>
+  </div>
   <!-- CONTATO -->
   <div id="tab-contato" class="tab-panel">
     <div class="sec-label">Informações de contato</div>
@@ -497,6 +631,42 @@ function showTab(name,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── SACRAMENTOS ──
+function showSacramento(name,btn){
+  document.querySelectorAll('.sac-content').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sac-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sac-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── DROPDOWN PASTORAIS ──
+function toggleDropdown(){
+  document.getElementById('dropdown-pastorais').classList.toggle('open');
+}
+
+document.addEventListener('click', function(e){
+  const dd = document.getElementById('dropdown-pastorais');
+  if(dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
+
+function showPastoral(name){
+  // Ativa a aba pastorais
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-pastorais').classList.add('active');
+  document.getElementById('btn-pastorais').classList.add('active');
+  document.getElementById('dropdown-pastorais').classList.remove('open');
+  // Ativa a sub-aba correta
+  showPastoralTab(name, document.getElementById('pbtn-'+name));
+}
+
+function showPastoralTab(name, btn){
+  document.querySelectorAll('.past-content').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.past-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('past-'+name).classList.add('active');
   btn.classList.add('active');
 }
 
