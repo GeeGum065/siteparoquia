@@ -571,6 +571,35 @@ function renderAdminList(){
       <button class="btn-icon del" onclick="deleteNoticia(${n.id})" title="Remover" aria-label="Remover notícia"><i class="ti ti-trash" aria-hidden="true"></i></button>
     </div>`).join('');
 }
+async function addNoticia(){
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const data   = document.getElementById('f-data').value;
+  if(!titulo||!data){ alert('Preencha o título e a data.'); return; }
+  
+  const payload = {
+    titulo,
+    categoria: document.getElementById('f-categoria').value,
+    data,
+    texto: document.getElementById('f-texto').value.trim(),
+    image: selectedImageData || ''
+  };
+  
+  try {
+    const response = await apiCall('/news/', 'POST', payload);
+    if (response.ok) {
+      await loadNoticias();
+      clearForm();
+      const s = document.getElementById('add-success');
+      s.classList.add('show');
+      setTimeout(()=>s.classList.remove('show'),2500);
+    } else {
+      const error = await response.json();
+      alert('Erro ao publicar: ' + (error.detail || 'Erro desconhecido'));
+    }
+  } catch (error) {
+    alert('Erro ao publicar notícia: ' + error.message);
+  }
+}
 // Carregar notícias a cada 30 segundos (opcional)
 setInterval(loadNoticias, 10000);
 </script>
